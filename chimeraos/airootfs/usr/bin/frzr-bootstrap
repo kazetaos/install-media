@@ -60,9 +60,9 @@ mkdir -p ${MOUNT_PATH}
 # create partition table and create and mount the btrfs filesystem
 parted --script ${DISK} \
 	mklabel gpt \
-	mkpart primary fat32 1MiB 512MiB \
+	mkpart primary fat32 1MiB 1024MiB \
 	set 1 esp on \
-	mkpart primary 512MiB 100%
+	mkpart primary 1024MiB 100%
 
 PART1=$(fdisk -o Device --list ${DISK} | grep "^${DISK}.*1$")
 PART2=$(fdisk -o Device --list ${DISK} | grep "^${DISK}.*2$")

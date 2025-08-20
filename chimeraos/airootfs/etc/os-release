@@ -1,8 +1,8 @@
-NAME="ChimeraOS"
-PRETTY_NAME="ChimeraOS"
-ID=chimeraos
+NAME="Kazeta"
+PRETTY_NAME="Kazeta"
+ID=kazeta
 ID_LIKE=arch
 ANSI_COLOR="1;31"
-HOME_URL="https://chimeraos.org"
-DOCUMENTATION_URL="https://chimeraos.org/about"
-BUG_REPORT_URL="https://github.com/ChimeraOS/chimeraos/issues"
+HOME_URL="https://kazeta.org"
+DOCUMENTATION_URL="https://kazeta.org"
+BUG_REPORT_URL="https://github.com/kazetaos/kazeta/issues"

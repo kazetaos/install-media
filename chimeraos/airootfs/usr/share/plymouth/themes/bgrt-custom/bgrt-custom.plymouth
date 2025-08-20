@@ -1,12 +1,12 @@
 [Plymouth Theme]
-Name=bgrt-chimera
+Name=bgrt-custom
 Description=Jimmac's spinner theme using the ACPI BGRT graphics as background
 ModuleName=two-step
 
 [two-step]
 Font=Cantarell 12
 TitleFont=Cantarell Light 30
-ImageDir=/usr/share/plymouth/themes//bgrt-chimera
+ImageDir=/usr/share/plymouth/themes/bgrt-custom
 DialogHorizontalAlignment=.5
 DialogVerticalAlignment=.382
 TitleHorizontalAlignment=.5

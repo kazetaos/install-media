@@ -85,11 +85,6 @@ is_disk_smaller_than() {
         return 0
 }
 
-get_disk_model_override() {
-        local device=$1
-        grep "${DEVICE_VENDOR}:${DEVICE_PRODUCT}:${DEVICE_CPU}:${device}" overrides | cut -f2- | xargs echo -n
-}
-
 get_disk_human_description() {
         local name=$1
         local size=$(lsblk --list -n -o name,size | grep "$name " | cut -d' ' -f2- | xargs echo -n)
@@ -98,11 +93,7 @@ get_disk_human_description() {
                 return
         fi
 
-        local model=$(get_disk_model_override $name | xargs echo -n)
-        if [ -z "$model" ]; then
-                model=$(lsblk --list -n -o name,model | grep "$name " | cut -d' ' -f2- | xargs echo -n)
-        fi
-
+        local model=$(lsblk --list -n -o name,model | grep "$name " | cut -d' ' -f2- | xargs echo -n)
         local vendor=$(lsblk --list -n -o name,vendor | grep "$name " | cut -d' ' -f2- | xargs echo -n)
         local transport=$(lsblk --list -n -o name,tran | grep "$name " | cut -d' ' -f2- | \
                 sed -e 's/usb/USB/' | \
@@ -193,49 +184,20 @@ if [ $EUID -ne 0 ]; then
 fi
 
 
-OS_NAME=ChimeraOS
-MIN_DISK_SIZE=55 # GB
+OS_NAME=Kazeta
+MIN_DISK_SIZE=28 # GB
 
 DEVICE_VENDOR=$(cat /sys/devices/virtual/dmi/id/sys_vendor)
 DEVICE_PRODUCT=$(cat /sys/devices/virtual/dmi/id/product_name)
 DEVICE_CPU=$(lscpu | grep Vendor | cut -d':' -f2 | xargs echo -n)
 
 
-
 dmesg --console-level 1
-
 
 
 # start polling for a gamepad
 poll_gamepad &
 
-
-# try to set correct date & time -- required to be able to connect to github via https if your hardware clock is set too far into the past
-timedatectl set-ntp true
-
-
-#### Test connection or ask the user for configuration ####
-
-# Waiting a bit because some wifi chips are slow to scan 5GHZ networks
-echo "Starting installer..."
-sleep 2
-
-TARGET="stable"
-while ! ( curl --http1.1 -Ls https://github.com | grep '<html' > /dev/null ); do
-    whiptail \
-     "No internet connection detected.\n\nPlease use the network configuration tool to activate a network, then select \"Quit\" to exit the tool and continue the installation." \
-     12 50 \
-     --yesno \
-     --yes-button "Configure" \
-     --no-button "Exit"
-
-    if [ $? -ne 0 ]; then
-         exit 1
-    fi
-
-    nmtui-connect
-done
-#######################################
 
 MOUNT_PATH=/tmp/frzr_root
 
@@ -256,43 +218,15 @@ if ! frzr-bootstrap gamer /dev/${DISK}; then
     cancel_install
 fi
 
-#### Post install steps for system configuration
-# Copy over all network configuration from the live session to the system
-SYS_CONN_DIR="/etc/NetworkManager/system-connections"
-if [ -d ${SYS_CONN_DIR} ] && [ -n "$(ls -A ${SYS_CONN_DIR})" ]; then
-    mkdir -p -m=700 ${MOUNT_PATH}${SYS_CONN_DIR}
-    cp  ${SYS_CONN_DIR}/* \
-        ${MOUNT_PATH}${SYS_CONN_DIR}/.
-fi
-
-
-# Grab the steam bootstrap for first boot
-URL="https://steamdeck-packages.steamos.cloud/archlinux-mirror/jupiter-main/os/x86_64/steam-jupiter-stable-1.0.0.79-1.5-x86_64.pkg.tar.zst"
-TMP_PKG="/tmp/package.pkg.tar.zst"
-TMP_FILE="/tmp/bootstraplinux_ubuntu12_32.tar.xz"
-DESTINATION="/tmp/frzr_root/etc/first-boot/"
-if [[ ! -d "$DESTINATION" ]]; then
-      mkdir -p /tmp/frzr_root/etc/first-boot
-fi
-
-curl --http1.1 -# -L -o "${TMP_PKG}" -C - "${URL}" 2>&1 | \
-stdbuf -oL tr '\r' '\n' | grep --line-buffered -oP '[0-9]*+(?=.[0-9])' | clean_progress 100 | \
-whiptail --gauge "Downloading Steam" 10 50 0
-
-tar -I zstd -xvf "$TMP_PKG" usr/lib/steam/bootstraplinux_ubuntu12_32.tar.xz -O > "$TMP_FILE"
-mv "$TMP_FILE" "$DESTINATION"
-rm "$TMP_PKG"
-
-
 export SHOW_UI=1
-frzr-deploy chimeraos/chimeraos:${TARGET}
+frzr-deploy *.img.tar.xz
 RESULT=$?
+
+echo "kazetaos/kazeta" > "${MOUNT_PATH}/source"
 
 MSG="Installation failed."
 if [ "${RESULT}" == "0" ]; then
     MSG="Installation successfully completed."
-elif [ "${RESULT}" == "29" ]; then
-    MSG="GitHub API rate limit error encountered. Please retry installation later."
 fi
 
 if (whiptail --yesno --yes-button "Reboot" --no-button "Open command prompt" "${MSG}" 10 70); then
