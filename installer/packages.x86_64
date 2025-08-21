@@ -9,7 +9,7 @@ cpio
 diffutils
 dosfstools
 efibootmgr
-inputplumber-bin
+inputplumber
 intel-ucode
 jq
 libnewt
