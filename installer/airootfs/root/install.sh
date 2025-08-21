@@ -218,10 +218,16 @@ if ! frzr-bootstrap gamer /dev/${DISK}; then
     cancel_install
 fi
 
+# create kazeta directory
+mkdir -p "${MOUNT_PATH}/var/kazeta"
+chown 1000:1000 "${MOUNT_PATH}/var/kazeta"
+
+# perform installation
 export SHOW_UI=1
 frzr-deploy *.img.tar.xz
 RESULT=$?
 
+# set source for updates
 echo "kazetaos/kazeta" > "${MOUNT_PATH}/source"
 
 MSG="Installation failed."
