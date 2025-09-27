@@ -1,8 +1,12 @@
 # install-media
-Build the ChimeraOS installation media.
+Build the Kazeta installation media.
 
 ## How to build
-There are two methods of building the installation media for ChimeraOS. From an Arch based system or from a Docker container.
+
+The installer is offline, so you first need to build an OS image using the kazetaos/kazeta repository.
+Place the built image with extension `img.tar.xz` in `installer/airootfs/root/kazeta-2025-0_545b900.img.tar.xz`, then build the installation media following the instructions below.
+
+There are two methods of building the installation media for Kazeta. Directly from an Arch based system or from a Docker container.
 
 ### Arch based systems
 On Arch the following packages will need to be installed:
@@ -32,19 +36,19 @@ To start building, use the following command:
 ## Files and directories
 Here a short explaination of what which files and directories do.
 
-### chimeraos
-Contains the modified archiso profile for ChimeraOS.
+### installer
+Contains the modified archiso profile for Kazeta.
 
-### chimeraos/pacman.conf
+### installer/pacman.conf
 The pacman configuration during the creation of the installation media. Repositories can be added here.
 
-### chimeraos/packages.x86_64
+### installer/packages.x86_64
 A list of packages which are installed on the installation media during creation.
 
-### chimeraos/airootfs
+### installer/airootfs
 Files which are added to the filesystem of the installation media's root file system.
 
-### chimeraos/airootfs/root/customize_airootfs.sh
+### installer/airootfs/root/customize_airootfs.sh
 This script runs in the live enviroment before it is put on the installation media. Allowing configuration changes.
 
 ### docker/Dockerfile
